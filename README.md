@@ -15,5 +15,5 @@ To integrate a new browser plug-in wallet into msafe, you should:
 ### Test the new wallet in demo front-end
 1. cd into 'wallet-tester': `cd packages/wallet-tester`
 2. start the front-end: `yarn start`
-3. in the front-end page, click the new wallet button. check if the address and public key is expected.
+3. in the front-end page, click the button with the name of the new wallet to connect to the wallet. check if the address and public key is expected.
 4. click button `sign transaction`. if the error is 'success', then the wallet is passed our test, otherwise you should check the error and fix it.
