@@ -1,0 +1,48 @@
+import { BCS, HexString, TxnBuilderTypes } from "aptos";
+import { EntryFunctionTxnConvertor } from "../lib/TxnConvertor";
+import { WebAccount } from "../lib/WebAccount";
+
+// pontem need to wait they fix bug
+export class PontemAccount extends WebAccount {
+    get wallet() {
+      return window.pontem;
+    }
+  
+    async walletSignTxnImpl(
+      txn: TxnBuilderTypes.RawTransaction
+    ): Promise<TxnBuilderTypes.SignedTransaction> {
+      const txnConvertor = new EntryFunctionTxnConvertor(PontemAccount.fmt);
+      const payload = txn.payload;
+      if (!(payload instanceof TxnBuilderTypes.TransactionPayloadEntryFunction)) {
+        throw Error("only support EntryFunction");
+      }
+      const signingPayload = await txnConvertor.getSigningPayload(payload);
+      const signingOption = txnConvertor.getSigningOption(txn);
+      try {
+        const signedPayload = await this.wallet.signTransaction(
+          signingPayload,
+          signingOption
+        );
+        const deserializer = new BCS.Deserializer(signedPayload.result);
+        return TxnBuilderTypes.SignedTransaction.deserialize(deserializer);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    }
+  
+    static fmt(type: string, arg: any) {
+      switch (type) {
+        case "address":
+          return HexString.fromUint8Array(arg).hex();
+        case "u8":
+        case "u64":
+        case "u128":
+          return String(arg);
+        case "vector<u8>":
+          return arg;
+      }
+      return arg;
+    }
+  }
+  
