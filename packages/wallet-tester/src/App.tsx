@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { WalletConnectors, WalletType } from "msafe-wallet-adaptor";
+import { WalletConnectors, WalletType, RPCClient } from "msafe-wallet-adaptor";
 import "./App.css";
 import { WebAccount } from "msafe-wallet-adaptor/dist/lib/WebAccount";
 import { HexString, TxnBuilderTypes, BCS } from "aptos";
 
 const address = (addr: string) => TxnBuilderTypes.AccountAddress.fromHex(addr);
-function testTransaction(): TxnBuilderTypes.RawTransaction {
+function testTransaction(sender: HexString, sn: bigint): TxnBuilderTypes.RawTransaction {
     const serializer = new BCS.Serializer();
     const owners = [
-        "0xdbb67f2caf126b224fa637451f37eb3a3181c074af576125da0f1ecb760382b3",
-        "0x717572a51e2140ca3472b973376f1ac064870d95c250b4477b9fe4bf8cbc2e3d",
-        "0x412090cb0f1c1b604040ce21e735336c4f26eb81b6c2e5bc351dbbcbe3428693",
+        "0x5c7b342e9ee2e582ad16fb602e8ebb6ba39b3bfa02a4fd3865853b10dc75765f",
+        "0xa3f6a53c57395401ce64f09a188e2259dc9b156387e76c88a7a80a8fe5254476",
     ];
     BCS.serializeVector(
         owners.map((owner) => address(owner)),
@@ -24,27 +23,25 @@ function testTransaction(): TxnBuilderTypes.RawTransaction {
             [
                 serializer.getBytes(),
                 BCS.bcsSerializeU8(2),
-                BCS.bcsSerializeUint64(10000),
+                BCS.bcsSerializeUint64(10000000),
                 BCS.bcsSerializeBytes(
                     new HexString(
-                        "b5e97db07fa0bd0e5598aa3643a9bc6f6693bddc1a9fec9e674a461eaa00b193c0455c582b0e3d794918db7de1f1c218ac311701db218958718e74494703fd3b0000000000000000024cebef114d8ce88cc1e1df73b9a6effa51bf58105b18e2be2dc222c84a3e54850d6d6f6d656e74756d5f7361666508726567697374657200010d0c68656c6c6f206d2d73616665d0070000000000000100000000000000d0e22663000000001f"
+                        "b5e97db07fa0bd0e5598aa3643a9bc6f6693bddc1a9fec9e674a461eaa00b193a527b6487c9ba480a3dbfbc351a3fcafd0a5044a0b3c877f759fa5df64a692f1000000000000000002aa90e0d9d16b63ba4a289fb0dc8d1b454058b21c9b5c76864f825d5c1f32582e0d6d6f6d656e74756d5f7361666508726567697374657200010c0b77616c6c6574206e616d65e02e0000000000007800000000000000fa7984630000000001"
                     ).toUint8Array()
                 ),
                 BCS.bcsSerializeBytes(
                     new HexString(
-                        "40e66eda2884c6e9cb639dcc4b4c85d45a98583b1ad37c1a3df52be23a6b22cf20647eb4c9ac03469ef3c5567f021e5b032e8fd0d0a5b9f1faae23ee9b1eea01"
+                        "fc284900723375e6b087a166c04edf6a1b71a361ad671608a849b733a878aaf910150dcf28e0f197675137abb328db6b55a6d98bee53413ad49c16549c1f0701"
                     ).toUint8Array()
                 ),
             ]
         )
     );
     return new TxnBuilderTypes.RawTransaction(
-        TxnBuilderTypes.AccountAddress.fromHex(
-            "0xa3f6a53c57395401ce64f09a188e2259dc9b156387e76c88a7a80a8fe5254476"
-        ),
-        0n,
+        TxnBuilderTypes.AccountAddress.fromHex(sender),
+        sn,
         payload,
-        10000n,
+        20000n,
         100n,
         1793884475n,
         new TxnBuilderTypes.ChainId(1)
@@ -64,7 +61,8 @@ function App() {
     async function signTransaction() {
         setError(undefined);
         if (!account) return;
-        const testTxn = testTransaction();
+        const sn = await RPCClient().getAccount(account.address()).then(acc=>BigInt(acc.sequence_number));
+        const testTxn = testTransaction(account.address(), sn);
         try {
             await account.sign(testTxn);
             setError("success");

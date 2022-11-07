@@ -8,7 +8,6 @@ const NETWORK_ENDPOINTS = {
 
 const client = new AptosClient(NETWORK_ENDPOINTS.Mainnet);
 
-
 async function getAccountModule(addr: HexString, moduleName: string):Promise<Types.MoveModuleBytecode> {
     return await client.getAccountModule(addr, moduleName);
 }
@@ -30,4 +29,8 @@ export async function getFunctionABI(
         throw new Error(`${contract}::${moduleName}::${fnName} not found`);
     }
     return abi;
+}
+
+export function RPCClient():AptosClient{
+    return client;
 }
