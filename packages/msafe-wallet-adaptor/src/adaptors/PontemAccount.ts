@@ -30,16 +30,16 @@ export class PontemAccount extends WebAccount {
         throw e;
       }
     }
-  
+    /// fmt formats the arg by abi-type to meet the wallet's parameter format.
     static fmt(type: string, arg: any) {
       switch (type) {
-        case "address":
+        case "address": // arg is Uint8Array of length 20.
           return HexString.fromUint8Array(arg).hex();
-        case "u8":
-        case "u64":
-        case "u128":
+        case "u8": // arg is Number
+        case "u64": // arg is BigInt
+        case "u128": // arg is BigInt
           return String(arg);
-        case "vector<u8>":
+        case "vector<u8>": // arg is Uint8Array of arbitrary length.
           return arg;
       }
       return arg;

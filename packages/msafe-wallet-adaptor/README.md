@@ -7,7 +7,7 @@
 There are two main interfaces need to be implemented: `wallet` and `walletSignTxnImpl`.
 
 ### `wallet` interface
-interface: `abstract wallet: any;`.
+Interface: `abstract wallet: any;`.
 
 `wallet` is a getter, that return the injected wallet, like `window.pontem`:
 ```typescript
@@ -17,7 +17,7 @@ get wallet() {
 ```
 
 ### `walletSignTxnImpl` interface
-interface: `abstract walletSignTxnImpl(txn: TxnBuilderTypes.RawTransaction):Promise<TxnBuilderTypes.SignedTransaction>;`
+Interface: `abstract walletSignTxnImpl(txn: TxnBuilderTypes.RawTransaction):Promise<TxnBuilderTypes.SignedTransaction>;`
 
 `walletSignTxnImpl` is a async function that is used to sign a transaction. It accepts an unsigned transaction and expects to return a signed transaction.
 
