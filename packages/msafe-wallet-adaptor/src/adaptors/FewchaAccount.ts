@@ -1,4 +1,4 @@
-import { BCS, TxnBuilderTypes } from "aptos";
+import { BCS, HexString, TxnBuilderTypes } from "aptos";
 import { WebAccount } from "../lib/WebAccount";
 
 export class FewchaAccount extends WebAccount {
