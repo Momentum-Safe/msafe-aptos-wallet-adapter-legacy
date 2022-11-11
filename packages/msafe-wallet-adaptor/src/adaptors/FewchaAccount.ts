@@ -10,7 +10,7 @@ export class FewchaAccount extends WebAccount {
       txn: TxnBuilderTypes.RawTransaction
     ): Promise<TxnBuilderTypes.SignedTransaction> {
       const bcsUnsignedTxn = BCS.bcsToBytes(txn);
-      const response: { data: number[] } = await this.wallet.signTransaction(
+      const response: { data: number[] } = await this.wallet.aptos.signMultiSignTransaction(
         bcsUnsignedTxn
       );
       return TxnBuilderTypes.SignedTransaction.deserialize(
