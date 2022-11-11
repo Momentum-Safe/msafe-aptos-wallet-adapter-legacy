@@ -24,7 +24,9 @@ const signFuncCheck = (
     signedTxn.raw_txn.serialize(serializerOut);
     const inDataHex = toHex(serializerIn.getBytes());
     const outDataHex = toHex(serializerOut.getBytes());
+    let hasError = false;
     if (inDataHex !== outDataHex) {
+      hasError = true;
       console.log('in bcs txn:\n', inDataHex);
       console.log('out bcs txn:\n', outDataHex);
       const outTxn = signedTxn.raw_txn;
@@ -46,16 +48,16 @@ const signFuncCheck = (
       check('gas_unit_price', txn.gas_unit_price, outTxn.gas_unit_price);
       check('expiration_timestamp_secs', txn.expiration_timestamp_secs, outTxn.expiration_timestamp_secs);
       check('chain_id', txn.chain_id.value, outTxn.chain_id.value);
-      throw Error("error in wallet sign");
     }
-    const signingMessage = TransactionBuilder.getSigningMessage(txn);
+    const signingMessage = TransactionBuilder.getSigningMessage(signedTxn.raw_txn);
     const authenticator =
       signedTxn.authenticator as TxnBuilderTypes.TransactionAuthenticatorEd25519;
     const signature = authenticator.signature.value;
     const publicKey = authenticator.public_key.value;
     const walletPubkey = (this as WebAccount).publicKeyBytes();
     if (!eq(publicKey, walletPubkey)) {
-      throw Error("public key don't match");
+      hasError = true;
+      console.log("Error: public key don't match");
     }
     const verified = nacl.sign.detached.verify(
       signingMessage,
@@ -63,8 +65,9 @@ const signFuncCheck = (
       publicKey
     );
     if (!verified) {
-      throw Error("invalid signature!");
+      console.log("Error: invalid signature!");
     }
+    if(hasError) throw Error("not pass signFuncCheck");
     return signedTxn;
   };
 };

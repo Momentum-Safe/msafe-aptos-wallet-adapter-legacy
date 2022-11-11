@@ -15,14 +15,17 @@ export class PetraAccount extends WebAccount {
       const payload = txn.payload;
       if (!(payload instanceof TxnBuilderTypes.TransactionPayloadEntryFunction))
         throw Error("only support EntryFunction");
-      const signingPayload = await txnConvertor.getSigningPayload(payload);
+      const option = txnConvertor.getSigningOption(txn);
       const signingOption = {
         type: "entry_function_payload",
-        ...txnConvertor.getSigningOption(txn),
+        gasUnitPrice: option.gas_unit_price,
+        maxGasFee: option.max_gas_amount,
+        sender: option.sender,
+        expirationTimestamp: option.expiration_timestamp_secs,
       };
       try {
         const signedPayload: { [index: number]: number } =
-          await this.wallet.signTransaction(signingPayload, signingOption);
+          await this.wallet.signTransaction(txn.payload, signingOption);
         const deserializer = new BCS.Deserializer(
           Uint8Array.from(Object.values(signedPayload))
         );
@@ -44,7 +47,7 @@ export class PetraAccount extends WebAccount {
         case "u128":
           return String(arg);
         case "vector<u8>":
-          return HexString.fromUint8Array(arg).hex();
+          return arg;
       }
       return arg;
     }
