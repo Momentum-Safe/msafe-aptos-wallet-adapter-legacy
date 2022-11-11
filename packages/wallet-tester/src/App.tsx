@@ -5,7 +5,8 @@ import { WebAccount } from "msafe-wallet-adaptor/dist/lib/WebAccount";
 import { HexString, TxnBuilderTypes, BCS } from "aptos";
 
 const address = (addr: string) => TxnBuilderTypes.AccountAddress.fromHex(addr);
-function testTransaction(sender: HexString, sn: bigint): TxnBuilderTypes.RawTransaction {
+const testMsafe = '0xaa90e0d9d16b63ba4a289fb0dc8d1b454058b21c9b5c76864f825d5c1f32582e';
+function testTransaction(sn: bigint): TxnBuilderTypes.RawTransaction {
     const serializer = new BCS.Serializer();
     const owners = [
         "0x5c7b342e9ee2e582ad16fb602e8ebb6ba39b3bfa02a4fd3865853b10dc75765f",
@@ -38,11 +39,11 @@ function testTransaction(sender: HexString, sn: bigint): TxnBuilderTypes.RawTran
         )
     );
     return new TxnBuilderTypes.RawTransaction(
-        TxnBuilderTypes.AccountAddress.fromHex(sender),
+        TxnBuilderTypes.AccountAddress.fromHex(testMsafe),
         sn,
         payload,
-        20000n,
-        100n,
+        20123n,
+        123n,
         1793884475n,
         new TxnBuilderTypes.ChainId(1)
     );
@@ -61,8 +62,8 @@ function App() {
     async function signTransaction() {
         setError(undefined);
         if (!account) return;
-        const sn = await RPCClient().getAccount(account.address()).then(acc=>BigInt(acc.sequence_number));
-        const testTxn = testTransaction(account.address(), sn);
+        const sn = await RPCClient().getAccount(testMsafe).then(acc=>BigInt(acc.sequence_number));
+        const testTxn = testTransaction(sn+1n);
         try {
             await account.sign(testTxn);
             setError("success");
@@ -82,6 +83,20 @@ function App() {
                         {name}
                     </button>
                 ))}
+            </p>
+            <p>
+                Entry Function:
+                <pre>
+                    public entry fun init_wallet_creation(<br/>
+                        s: &signer,<br/>
+                        owners: vector[address],<br/>
+                        threshold: u8,<br/>
+                        init_balance: u64,<br/>
+                        payload: vector[u8],<br/>
+                        signature: vector[u8],<br/>
+                    )
+                </pre>
+                Transaction:
             </p>
             <p>
                 <button onClick={signTransaction}>sign transaction</button>
