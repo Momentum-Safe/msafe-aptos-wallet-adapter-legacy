@@ -2,7 +2,9 @@ import { HexString, TxnBuilderTypes, BCS, TransactionBuilder } from "aptos";
 import { Account, SigData } from "./Account";
 import nacl from "tweetnacl";
 
-const eq = (a: Uint8Array, b: Uint8Array) => HexString.fromUint8Array(a).hex() === HexString.fromUint8Array(b).hex();
+const toHex = (a: Uint8Array)=>HexString.fromUint8Array(a).hex();
+const eq = (a: Uint8Array, b: Uint8Array) => toHex(a) === toHex(b);
+
 // used to check if the wallet deal the input transaction in right way
 const signFuncCheck = (
   target: any,
@@ -20,11 +22,30 @@ const signFuncCheck = (
     const serializerOut = new BCS.Serializer();
     txn.serialize(serializerIn);
     signedTxn.raw_txn.serialize(serializerOut);
-    const inDataHex = HexString.fromUint8Array(serializerIn.getBytes()).hex();
-    const outDataHex = HexString.fromUint8Array(serializerOut.getBytes()).hex();
+    const inDataHex = toHex(serializerIn.getBytes());
+    const outDataHex = toHex(serializerOut.getBytes());
     if (inDataHex !== outDataHex) {
       console.log('in bcs txn:\n', inDataHex);
       console.log('out bcs txn:\n', outDataHex);
+      const outTxn = signedTxn.raw_txn;
+
+      const check = <T>(field:string, inValue:T, outValue:T)=>{
+        let inData = inValue instanceof Uint8Array ? toHex(inValue):inValue;
+        let outData = outValue instanceof Uint8Array ? toHex(outValue):outValue;
+        if(inData !== outData) {
+          console.log(`${field} different!`);
+          console.log(`\tin : ${inData}`);
+          console.log(`\tout: ${outData}`);
+        }
+      }
+      
+      check('sender', txn.sender.address, outTxn.sender.address);
+      check('sequence_number', txn.sequence_number, outTxn.sequence_number);
+      check('payload', BCS.bcsToBytes(txn.payload), BCS.bcsToBytes(outTxn.payload));
+      check('max_gas_amount', txn.max_gas_amount, outTxn.max_gas_amount);
+      check('gas_unit_price', txn.gas_unit_price, outTxn.gas_unit_price);
+      check('expiration_timestamp_secs', txn.expiration_timestamp_secs, outTxn.expiration_timestamp_secs);
+      check('chain_id', txn.chain_id.value, outTxn.chain_id.value);
       throw Error("error in wallet sign");
     }
     const signingMessage = TransactionBuilder.getSigningMessage(txn);
