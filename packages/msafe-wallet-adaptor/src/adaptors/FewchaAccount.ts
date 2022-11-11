@@ -13,9 +13,10 @@ export class FewchaAccount extends WebAccount {
       const response: { data: number[] } = await this.wallet.aptos.signMultiSignTransaction(
         bcsUnsignedTxn
       );
-      return TxnBuilderTypes.SignedTransaction.deserialize(
-        new BCS.Deserializer(Uint8Array.from(response.data))
-      );
+      const publicKey = new TxnBuilderTypes.Ed25519PublicKey(this.publicKeyBytes());
+      const signature = new TxnBuilderTypes.Ed25519Signature(Uint8Array.from(response.data));
+      const authenticator = new TxnBuilderTypes.TransactionAuthenticatorEd25519(publicKey, signature);
+      return new TxnBuilderTypes.SignedTransaction(txn, authenticator);
     }
   }
   
