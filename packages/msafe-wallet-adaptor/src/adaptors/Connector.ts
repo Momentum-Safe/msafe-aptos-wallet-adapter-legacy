@@ -3,12 +3,14 @@ import { MartianAccount } from "./MartianAccount";
 import { FewchaAccount } from "./FewchaAccount";
 import { PetraAccount } from "./PetraAccount";
 import { WebAccount } from "../lib/WebAccount";
+import { RiseAccount } from "./RiseAccount";
 
 export const WALLET_TYPE = {
     PONTEM: "Pontem",
     MARTIAN: "Martian",
     FEWCHA: "Fewcha",
     PETRA: "Petra",
+    RISE: "Rise",
 } as const;
 
 export type WalletType = typeof WALLET_TYPE[keyof typeof WALLET_TYPE];
@@ -32,5 +34,9 @@ export const WalletConnectors: Connectors = {
     [WALLET_TYPE.PETRA]: async () => {
         const account: Account = await window.petra.connect();
         return new PetraAccount(account.address, account.publicKey);
+    },
+    [WALLET_TYPE.RISE]: async () => {
+        const account: Account = await window.rise.connect();
+        return new RiseAccount(account.address, account.publicKey);
     },
 };

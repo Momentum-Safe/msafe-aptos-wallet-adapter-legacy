@@ -22,6 +22,7 @@ export class PetraAccount extends WebAccount {
         maxGasFee: option.max_gas_amount,
         sender: option.sender,
         expirationTimestamp: option.expiration_timestamp_secs,
+        sequenceNumber: option.sequence_number,
       };
       try {
         const signedPayload: { [index: number]: number } =

@@ -5,5 +5,6 @@ interface Window {
     petra: any;
     aptos: any;
     store: any;
+    rise: any;
 }
   
