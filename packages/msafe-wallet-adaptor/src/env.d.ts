@@ -6,5 +6,6 @@ interface Window {
     aptos: any;
     store: any;
     rise: any;
+    $onekey: any;
 }
   

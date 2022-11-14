@@ -4,6 +4,7 @@ import { FewchaAccount } from "./FewchaAccount";
 import { PetraAccount } from "./PetraAccount";
 import { WebAccount } from "../lib/WebAccount";
 import { RiseAccount } from "./RiseAccount";
+import { OnekeyAccount } from "./OnekeyAccount";
 
 export const WALLET_TYPE = {
     PONTEM: "Pontem",
@@ -11,6 +12,7 @@ export const WALLET_TYPE = {
     FEWCHA: "Fewcha",
     PETRA: "Petra",
     RISE: "Rise",
+    Onekey: "Onekey",
 } as const;
 
 export type WalletType = typeof WALLET_TYPE[keyof typeof WALLET_TYPE];
@@ -38,5 +40,9 @@ export const WalletConnectors: Connectors = {
     [WALLET_TYPE.RISE]: async () => {
         const account: Account = await window.rise.connect();
         return new RiseAccount(account.address, account.publicKey);
+    },
+    [WALLET_TYPE.Onekey]: async () => {
+        const account: Account = await window.$onekey.aptos.connect();
+        return new OnekeyAccount(account.address, account.publicKey);
     },
 };
