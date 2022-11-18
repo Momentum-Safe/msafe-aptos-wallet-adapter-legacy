@@ -10,12 +10,10 @@ export class OnekeyAccount extends WebAccount {
       txn: TxnBuilderTypes.RawTransaction
     ): Promise<TxnBuilderTypes.SignedTransaction> {
       const bcsUnsignedTxn = BCS.bcsToBytes(txn);
-      console.log("window.$onekey.aptos.signTransaction:", HexString.fromUint8Array(bcsUnsignedTxn).hex());
-      const response: string = await this.wallet.signTransaction(
+      const arrayStr: string = await this.wallet.signTransaction(
         HexString.fromUint8Array(bcsUnsignedTxn).noPrefix()
       );
-      console.log('response:', response);
-      const bcsSignedTxn = HexString.ensure(response).toUint8Array()
+      const bcsSignedTxn = Uint8Array.from(arrayStr.split(",").map((s) => Number(s)));
       return TxnBuilderTypes.SignedTransaction.deserialize(
         new BCS.Deserializer(bcsSignedTxn)
       );
