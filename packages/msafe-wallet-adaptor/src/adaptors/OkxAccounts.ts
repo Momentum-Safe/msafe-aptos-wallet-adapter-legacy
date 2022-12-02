@@ -3,22 +3,21 @@ import { EntryFunctionTxnConvertor } from "../lib/TxnConvertor";
 import { WebAccount } from "../lib/WebAccount";
 
 // pontem need to wait they fix bug
-export class PontemAccount extends WebAccount {
+export class OkxAccount extends WebAccount {
     get wallet() {
-      return window.pontem;
+      return window.okxwallet.aptos;
     }
   
     async walletSignTxnImpl(
       txn: TxnBuilderTypes.RawTransaction
     ): Promise<TxnBuilderTypes.SignedTransaction> {
-      const txnConvertor = new EntryFunctionTxnConvertor(PontemAccount.fmt);
+      const txnConvertor = new EntryFunctionTxnConvertor(OkxAccount.fmt);
       const payload = txn.payload;
       if (!(payload instanceof TxnBuilderTypes.TransactionPayloadEntryFunction)) {
         throw Error("only support EntryFunction");
       }
       const signingPayload = await txnConvertor.getSigningPayload(payload);
       const signingOption = txnConvertor.getSigningOption(txn);
-      console.log(signingOption);
       try {
         const signedPayload = await this.wallet.signTransaction(
           signingPayload,

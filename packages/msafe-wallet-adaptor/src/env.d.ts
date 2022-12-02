@@ -7,5 +7,6 @@ interface Window {
     store: any;
     rise: any;
     $onekey: any;
+    okxwallet: any;
 }
   
