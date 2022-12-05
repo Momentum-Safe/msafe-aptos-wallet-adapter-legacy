@@ -23,7 +23,9 @@ export class OkxAccount extends WebAccount {
           signingPayload,
           signingOption
         );
-        const deserializer = new BCS.Deserializer(signedPayload.result);
+        const deserializer = new BCS.Deserializer(
+            Uint8Array.from(Object.values(signedPayload))
+        );
         return TxnBuilderTypes.SignedTransaction.deserialize(deserializer);
       } catch (e) {
         console.error(e);
